@@ -1,5 +1,7 @@
 package com.br.model.entities;
 
+import com.br.model.exceptions.DomainExeception;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
@@ -14,9 +16,19 @@ public class Reservation {
     //a classe SimpleDateFormat formata uma data para a máscara que eu escolher
 
     public Reservation(Integer roomNumber, Date checkIn, Date checkOut) {
-        this.roomNumber = roomNumber;
-        this.checkIn = checkIn;
-        this.checkOut = checkOut;
+        Date now = new Date();
+
+        if (checkIn.before(now) || checkOut.before(now)) {
+            throw  new DomainExeception("the dates must be futures") ;
+        }
+
+        if (!checkOut.after(checkIn)) {
+            throw new DomainExeception("check-out date must be after check-in");
+        } else {
+            this.roomNumber = roomNumber;
+            this.checkIn = checkIn;
+            this.checkOut = checkOut;
+        }
     }
 
     public Integer getRoomNumber() {
@@ -40,20 +52,19 @@ public class Reservation {
         return TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS); //o TimeUnit.DAYS.convert converte o resultado do diff para milissegundos
     }
 
-    public String updateDates(Date checkIn, Date checkOut) {
+    public void updateDates(Date checkIn, Date checkOut) {
 
         Date now = new Date();
 
         if (checkIn.before(now) || checkOut.before(now)) {
-            return "the dates must be futures";
+            throw  new DomainExeception("the dates must be futures") ;
         }
 
         if (!checkOut.after(checkIn)) {
-            return "check-out date must be after check-in";
+            throw new DomainExeception("check-out date must be after check-in");
         } else {
             this.checkIn = checkIn;
             this.checkOut = checkOut;
-            return null;
         }
 
     }
